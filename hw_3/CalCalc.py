@@ -2,10 +2,10 @@
 alpha characters), will try to evaluate locally with numexpr. If more 
 complex, will try to query wolfram alpha.
 """
-
 import argparse
 import numexpr as ne
 import urllib.request
+import requests
 
 
 def calculate(str_input, return_float=True):
@@ -24,29 +24,28 @@ def calculate(str_input, return_float=True):
         Numeric output of evaluated string.
 
     """
-    
+
     # first, are you string?
     if type(str_input) != str:
         raise ValueError("You are not a string. Try again.")
-    
+
     # let's see if numexpr can solve you
-    try: 
-        answer = ne.evaluate(str_input)
-        return answer 
-    except (KeyError, SyntaxError) as e: 
-        
+    try:
+        answer = ne.evaluate(str_input).item()
+        return answer
+    except (KeyError, SyntaxError):
+
         # ok, let's send you to wolfram
-        try: 
+        try:
             answer = query_wolfram(str_input, return_float)
             return answer
-        except (ValueError, SyntaxError) as e:
+        except (ValueError, SyntaxError):
             print("Wolfram could not solve query.")
-        
-        
-    
+
+
 def query_wolfram(str_input, return_float):
     """Send off query to wolfram...
-    
+
     Parameters
     ----------
     str_input : str
@@ -61,52 +60,54 @@ def query_wolfram(str_input, return_float):
 
     """
 
-    # get query url
-    url_prefix = 'http://api.wolframalpha.com/v2/query?input=' 
-    query = str_input.replace('+', '%2B').replace(' ','+') # replace numeric '+'; use '+' as space;
-    return_opts = '&appid=9TLK2V-8T9H43UY82&format=plaintext&includepodid=Result' # reduce output to just results as text
+    # note: got some help with json from Brooke and https://towardsdatascience.com/build-your-next-project-with-wolfram-alpha-api-and-python-51c2c361d8b9
 
-    full_url = url_prefix + query + return_opts
+    # make query url
+    app_id = "9TLK2V-8T9H43UY82"
+    query = urllib.parse.quote_plus(str_input)
 
-    # set off to wolfram!
-    output = urllib.request.urlopen(full_url) # request for url
-    output_as_text = output.read().decode('utf-8') # turn it into English...
+    query_url = (
+        f"http://api.wolframalpha.com/v2/query?"
+        f"appid={app_id}"
+        f"&input={query}"
+        f"&format=plaintext"
+        f"&includepodid=Result"
+        f"&output=json"
+    )
 
-    # extract answer, assuming it's in the plaintext section of the results pod...
-    idx_plaintext = output_as_text.find('<plaintext>')
-    
-    if idx_plaintext == -1:
-        raise ValueError("Don't know how to parse result from wolfram.")
-    
-    idx_start = idx_plaintext + 11
-    idx_start = output_as_text.find('<plaintext>')+11
-    idx_stop = output_as_text.find('</plaintext>',idx_start)
-    query_output = output_as_text[idx_start:idx_stop]
-    
-    if query_output == '(data not available)':
-        return ValueError('Wolfram does not know the answer.')
-    
+    # go fetch!
+    r = requests.get(query_url).json()
+
+    # parse the output
+    data = r["queryresult"]["pods"][0]["subpods"][0]
+    query_output = data["plaintext"]
+
+    # wolfram might not know the answer....
+    if query_output == "(data not available)":
+        return ValueError("Wolfram does not know the answer.")
+
+    # ...but if it does, split out a float... (could probably make this prettier)
     if return_float:
-        number = query_output.split(' ')[0]
-        number_simple = number.replace('×','*').replace('^','**')
-        return ne.evaluate(number_simple)
-    
-    else: 
+        number = query_output.split(" ")[0]
+        number_simple = number.replace("×", "*").replace("^", "**")
+        return ne.evaluate(number_simple).item()
+
+    # ... or return the full string result
+    else:
         return query_output
-    
-    
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
     # parse command line arguements
-    parser = argparse.ArgumentParser(description='CalCal Module')
-    parser.add_argument('-s', action='store', dest='str_input',
-                        help='String to parse') # use the same flag for all inputs! 
+    parser = argparse.ArgumentParser(description="CalCal Module")
+    parser.add_argument("-s", action="store", dest="str_input", help="String to parse")
     results = parser.parse_args()
 
     # TODO: try using click instead to make cuter!
 
     # check you got an arg
-    if results.str_input == None:
-        raise ValueError('feed me a string with -s')
-    
+    if results.str_input is None:
+        raise ValueError("feed me a string with -s")
+
     # execute function
     print(calculate(results.str_input))
