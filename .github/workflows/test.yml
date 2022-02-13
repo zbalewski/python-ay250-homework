@@ -46,3 +46,4 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         verbose: true
+        token: ee6ab37f-7f2e-4c88-9f05-784503c33f2c
