@@ -1,9 +1,10 @@
 [run]
 branch = True
+source = hw_3 
 
 [report]
 omit =
-    hw_1/
-    hw_2/
+    hw_1/*
+    hw_2/*
     hw_3/calcacl/tests/*
     hw_3/setup.py
