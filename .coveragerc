@@ -1,0 +1,9 @@
+[run]
+branch = True
+
+[report]
+omit =
+    hw_1/
+    hw_2/
+    hw_3/calcacl/tests/*
+    hw_3/setup.py
