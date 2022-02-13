@@ -31,22 +31,22 @@ def test_long_operations():
 
 def test_wolfram_string():
     inputs = ['speed of sound in m/s',
-              'distance to the moon in feet',
-              'distance to the moon in inches']
+              'speed of light in m/s',
+              'speed of light in ft/min']
     outputs = ['340.27 m/s (meters per second)',
-               '1.317×10^9 feet',
-               '1.58×10^10 inches']
+               '2.998×10^8 m/s (meters per second)',
+               '5.901×10^10 ft/min (feet per minute)']
     for (i, xy) in enumerate(inputs):
         assert calculate(xy, return_float=False) == outputs[i]
 
 
 def test_wolfram_float():
     inputs = ['speed of sound in m/s',
-              'distance to the moon in feet']
+              'speed of light in ft/min']
     scale_by = [2,
                 0.5]
     outputs = [340.27,
-               1.317e9]
+               5.901e10]
     for (i, xy) in enumerate(inputs):
         assert scale_by[i] * calculate(xy) == scale_by[i] * outputs[i]
 
