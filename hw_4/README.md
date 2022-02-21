@@ -7,13 +7,19 @@ Sampling the dart coordinates is much faster with numpy's arrays (green). Dask's
 arrays further improve performance for large numbers.
 
 Total simulation time:
+
 ![simulation time](https://github.com/zbalewski/python-ay250-homework/blob/main/hw_4/sim_time.png?raw=true)
 
+
 Rate of dart throws:
+
 ![throw rate](https://github.com/zbalewski/python-ay250-homework/blob/main/hw_4/throw_rate.png?raw=true)
 
+
 Estimates of pi:
+
 ![simulation time](https://github.com/zbalewski/python-ay250-homework/blob/main/hw_4/est_pi.png?raw=true)
+
 
 
 
