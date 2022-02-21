@@ -46,12 +46,14 @@ def throw_darts_serial(n_darts):
         
     """
     
+    # count the number of hits in the circle
     n_success = 0
     
     for dart in range(n_darts):
         if hit_target(dart):
             n_success += 1
 
+    # approximate pi
     pi_approx = 4 * n_success / n_darts
     
     return pi_approx
