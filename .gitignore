@@ -2,6 +2,7 @@
 large_files/
 data/
 data_clean/
+output/
 
 # Mac-specific
 .DS_Store
